@@ -33,4 +33,24 @@ void main() {
     expect(VersionUtil.isNewer('1.0.0', '1.0.1'), true);
     expect(VersionUtil.isNewer('1.0.0', '1.0.0'), false);
   });
+
+  test('.env parse for variables tab', () {
+    final m = parseEnv('# c\nFOO=bar\nexport BAZ="qux"\n');
+    expect(m['FOO'], 'bar');
+    expect(m['BAZ'], 'qux');
+  });
+
+  test('variable json parse', () {
+    final v = BlazeVariable.fromJson({
+      'attributes': {
+        'name': 'Game',
+        'description': 'id',
+        'env_variable': 'GAME_ID',
+        'server_value': '1',
+        'is_editable': true,
+      },
+    });
+    expect(v.env, 'GAME_ID');
+    expect(v.value, '1');
+  });
 }

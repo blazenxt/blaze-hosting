@@ -1,0 +1,16 @@
+Blaze Hosting — isolated native client
+
+What this installer puts on your PC
+  • BlazeHosting.exe — Windows app (not a website in a window)
+  • Start Menu and Desktop shortcuts
+  • Uninstaller
+
+What it does
+  • Create an account or sign in
+  • Manage only YOUR servers on panel.nawazfx.com
+  • Console, files, environment variables (.env auto-detect),
+    backups, databases, network, settings, API keys
+
+What it never does
+  • Open another origin
+  • Show another user's files or servers

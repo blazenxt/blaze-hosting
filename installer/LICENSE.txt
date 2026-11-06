@@ -1,0 +1,13 @@
+BLAZE HOSTING
+Isolated Windows client — version 1.0.0
+
+This software talks only to https://panel.nawazfx.com for the signed-in
+account. It does not wrap a browser. Other users' servers are never shown.
+
+By installing you agree to the Blaze Hosting Terms & Conditions, including
+plan limits, the owner's force-revoke rights, and the acceptable-use policy
+(no exploitation hosting, card testing, VPS-like services, or other abuse —
+violators are banned).
+
+Terms: https://panel.nawazfx.com/auth/terms
+Site:  https://nawazfx.com/

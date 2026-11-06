@@ -88,6 +88,26 @@ class _BlazeNativeAppState extends State<BlazeNativeApp> {
     }
   }
 
+  Widget _shell(String section, Widget child) {
+    return PanelShell(
+      email: api.email,
+      section: section,
+      onServers: () => setState(() {
+        current = null;
+        page = _Page.home;
+      }),
+      onAccount: () => setState(() => page = _Page.account),
+      onLogout: () async {
+        await api.logout();
+        setState(() {
+          servers = [];
+          page = _Page.login;
+        });
+      },
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -114,41 +134,38 @@ class _BlazeNativeAppState extends State<BlazeNativeApp> {
               page = _Page.login;
             }),
           ),
-        _Page.home => HomePage(
-            email: api.email,
-            servers: servers.where((s) => query.isEmpty || s.name.toLowerCase().contains(query.toLowerCase())).toList(),
-            query: query,
-            onQuery: (v) => setState(() => query = v),
-            onOpen: (s) => setState(() {
-              current = s;
-              page = _Page.server;
-            }),
-            onPower: (id, sig) async {
-              await api.power(id, sig);
-              await _reload();
-            },
-            onLogout: () async {
-              await api.logout();
-              setState(() {
-                servers = [];
-                page = _Page.login;
-              });
-            },
-            onAccount: () => setState(() => page = _Page.account),
-            api: api,
+        _Page.home => _shell(
+            'servers',
+            HomePage(
+              email: api.email,
+              servers: servers.where((s) => query.isEmpty || s.name.toLowerCase().contains(query.toLowerCase())).toList(),
+              query: query,
+              onQuery: (v) => setState(() => query = v),
+              onOpen: (s) => setState(() {
+                current = s;
+                page = _Page.server;
+              }),
+              onPower: (id, sig) async {
+                await api.power(id, sig);
+                await _reload();
+              },
+              onLogout: () {},
+              onAccount: () {},
+              api: api,
+            ),
           ),
-        _Page.server => ServerPage(
-            server: current!,
-            api: api,
-            onBack: () => setState(() {
-              current = null;
-              page = _Page.home;
-            }),
+        _Page.server => _shell(
+            'servers',
+            ServerPage(
+              server: current!,
+              api: api,
+              onBack: () => setState(() {
+                current = null;
+                page = _Page.home;
+              }),
+            ),
           ),
-        _Page.account => AccountPage(
-            api: api,
-            onBack: () => setState(() => page = _Page.home),
-          ),
+        _Page.account => _shell('account', AccountPage(api: api, onBack: () => setState(() => page = _Page.home))),
       },
     );
   }
@@ -160,19 +177,20 @@ class _Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BlazeTheme.bg,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset('assets/logo.png', width: 96, height: 96),
-            const SizedBox(height: 16),
-            const Text('Blaze Hosting', style: TextStyle(color: BlazeTheme.text, fontSize: 28, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
-            const Text('Isolated · 1.0.0', style: TextStyle(color: BlazeTheme.muted)),
-            const SizedBox(height: 24),
-            const SizedBox(width: 140, child: LinearProgressIndicator(color: BlazeTheme.accent, backgroundColor: Color(0x22FFFFFF))),
-          ],
+      body: EmberBackdrop(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(borderRadius: BorderRadius.circular(24), child: Image.asset('assets/logo.png', width: 96, height: 96)),
+              const SizedBox(height: 16),
+              const Text('Blaze Hosting', style: TextStyle(color: BlazeTheme.text, fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.8)),
+              const SizedBox(height: 6),
+              const Text('Isolated · 1.0.0', style: TextStyle(color: BlazeTheme.muted)),
+              const SizedBox(height: 24),
+              const SizedBox(width: 140, child: LinearProgressIndicator(color: BlazeTheme.accent, backgroundColor: Color(0x22FFFFFF))),
+            ],
+          ),
         ),
       ),
     );

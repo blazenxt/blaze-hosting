@@ -9,48 +9,55 @@ import '../api/models.dart';
 import '../theme.dart';
 import 'widgets.dart';
 
-class ServerPage extends StatelessWidget {
+class ServerPage extends StatefulWidget {
   const ServerPage({super.key, required this.server, required this.api, required this.onBack});
   final BlazeServer server;
   final BlazeApi api;
   final VoidCallback onBack;
 
   @override
+  State<ServerPage> createState() => _ServerPageState();
+}
+
+class _ServerPageState extends State<ServerPage> {
+  int tab = 0;
+  static const tabs = ['Console', 'Files', 'Variables', 'Backups', 'Databases', 'Network', 'Settings'];
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 7,
-      child: Scaffold(
-        backgroundColor: BlazeTheme.bg,
-        appBar: AppBar(
-          leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
-          title: Text(server.name),
-          bottom: const TabBar(
-            isScrollable: true,
-            labelColor: BlazeTheme.accentBright,
-            unselectedLabelColor: BlazeTheme.muted,
-            tabs: [
-              Tab(text: 'Console'),
-              Tab(text: 'Files'),
-              Tab(text: 'Variables'),
-              Tab(text: 'Backups'),
-              Tab(text: 'Databases'),
-              Tab(text: 'Network'),
-              Tab(text: 'Settings'),
+    final s = widget.server;
+    final pages = [
+      _Console(server: s, api: widget.api),
+      _Files(server: s, api: widget.api),
+      _Vars(server: s, api: widget.api),
+      _Backups(server: s, api: widget.api),
+      _Dbs(server: s, api: widget.api),
+      _Net(server: s, api: widget.api),
+      _Settings(server: s, api: widget.api),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
+          child: Row(
+            children: [
+              TextButton(onPressed: widget.onBack, child: const Text('← Servers', style: TextStyle(color: BlazeTheme.accentBright, fontWeight: FontWeight.w700))),
+              const Spacer(),
+              Text(s.id, style: const TextStyle(color: BlazeTheme.muted, fontSize: 12, fontFamily: 'Consolas')),
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            _Console(server: server, api: api),
-            _Files(server: server, api: api),
-            _Vars(server: server, api: api),
-            _Backups(server: server, api: api),
-            _Dbs(server: server, api: api),
-            _Net(server: server, api: api),
-            _Settings(server: server, api: api),
-          ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(28, 4, 28, 8),
+          child: Text(s.name, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.8, color: BlazeTheme.text)),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+          child: PillTabs(tabs: tabs, index: tab, onSelect: (i) => setState(() => tab = i)),
+        ),
+        Expanded(child: pages[tab]),
+      ],
     );
   }
 }
@@ -111,33 +118,39 @@ class _ConsoleState extends State<_Console> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 10),
           child: Row(children: [
-            Pwr('Start', const Color(0xFF5EE9A8), () => widget.api.power(s.id, 'start')),
+            Pwr('Start', BlazeTheme.ok, () => widget.api.power(s.id, 'start')),
             const SizedBox(width: 8),
             Pwr('Restart', BlazeTheme.accentBright, () => widget.api.power(s.id, 'restart')),
             const SizedBox(width: 8),
-            Pwr('Stop', const Color(0xFFFB7185), () => widget.api.power(s.id, 'stop')),
+            Pwr('Stop', BlazeTheme.bad, () => widget.api.power(s.id, 'stop')),
             const SizedBox(width: 8),
-            Pwr('Kill', const Color(0xFFF5C36E), () => widget.api.power(s.id, 'kill')),
+            Pwr('Kill', BlazeTheme.warn, () => widget.api.power(s.id, 'kill')),
+            const Spacer(),
+            const Text('backup · logs · power', style: TextStyle(color: BlazeTheme.muted, fontSize: 12)),
           ]),
         ),
         Expanded(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: const Color(0xFF050506), borderRadius: BorderRadius.circular(14), border: Border.all(color: BlazeTheme.line)),
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF050506),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: BlazeTheme.line),
+            ),
             child: SingleChildScrollView(
               reverse: true,
               child: SelectableText(
                 logs.isEmpty ? 'Waiting for console…' : logs.join(),
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 12, color: Color(0xFFD1D5DB), height: 1.45),
+                style: const TextStyle(fontFamily: 'Consolas', fontSize: 12.5, color: Color(0xFFD1D5DB), height: 1.45),
               ),
             ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(24, 10, 24, 16),
           child: TextField(
             controller: cmd,
             style: const TextStyle(color: BlazeTheme.text, fontFamily: 'monospace'),

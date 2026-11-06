@@ -49,17 +49,10 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     final a = widget.api.account;
-    return Scaffold(
-      backgroundColor: BlazeTheme.bg,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+    return ListView(
+          padding: const EdgeInsets.fromLTRB(28, 22, 28, 40),
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(onPressed: widget.onBack, child: const Text('← Servers', style: TextStyle(color: BlazeTheme.accentBright, fontWeight: FontWeight.w700))),
-            ),
-            const Text('Account', style: TextStyle(color: BlazeTheme.text, fontSize: 24, fontWeight: FontWeight.w700)),
+            const Text('Account', style: TextStyle(color: BlazeTheme.text, fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -1)),
             const SizedBox(height: 6),
             Text(a == null ? widget.api.email : '${a.name} · ${a.username}\n${a.email}', style: const TextStyle(color: BlazeTheme.muted)),
             const SizedBox(height: 22),
@@ -118,10 +111,8 @@ class _AccountPageState extends State<AccountPage> {
                 ),
               ),
             ),
-            if (err.isNotEmpty) Text(err, style: const TextStyle(color: Color(0xFFFB7185))),
+            if (err.isNotEmpty) Text(err, style: const TextStyle(color: BlazeTheme.bad)),
           ],
-        ),
-      ),
     );
   }
 }

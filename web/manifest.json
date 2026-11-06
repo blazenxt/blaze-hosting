@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#080808",
-    "theme_color": "#F97316",
+    "theme_color": "#C94F59",
     "description": "Isolated Blaze Hosting client",
     "orientation": "any",
     "prefer_related_applications": false,

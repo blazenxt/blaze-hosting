@@ -2,108 +2,87 @@ import 'package:flutter/material.dart';
 
 import 'isolate/allowlist.dart';
 import 'panel/panel_shell.dart';
+import 'shell/blaze_chrome.dart';
+import 'theme.dart';
 import 'update/update_gate.dart';
 import 'update/update_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final updates = UpdateService();
-  String start = 'https://${BlazeAllowlist.panel}';
-  String? bootError;
-  try {
-    await updates.boot();
-    final panel = updates.snapshot?.panelUrl;
-    if (panel != null && panel.startsWith('https://')) {
-      start = panel;
-    }
-  } catch (e) {
-    bootError = e.toString();
-  }
-  runApp(BlazeApp(updates: updates, startUrl: start, bootError: bootError));
+  runApp(const BlazeBoot());
 }
 
-class BlazeApp extends StatelessWidget {
-  const BlazeApp({
-    super.key,
-    required this.updates,
-    required this.startUrl,
-    this.bootError,
-  });
+class BlazeBoot extends StatefulWidget {
+  const BlazeBoot({super.key});
 
-  final UpdateService updates;
-  final String startUrl;
-  final String? bootError;
+  @override
+  State<BlazeBoot> createState() => _BlazeBootState();
+}
+
+class _BlazeBootState extends State<BlazeBoot> {
+  final updates = UpdateService();
+  var ready = false;
+  String start = 'https://${BlazeAllowlist.panel}';
+
+  @override
+  void initState() {
+    super.initState();
+    _boot();
+  }
+
+  Future<void> _boot() async {
+    try {
+      await updates.boot();
+      final panel = updates.snapshot?.panelUrl;
+      if (panel != null && panel.startsWith('https://')) {
+        start = panel;
+      }
+    } catch (_) {
+      // Panel still opens; updates stay off until Firebase is configured.
+    }
+    if (mounted) setState(() => ready = true);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Blaze Hosting',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFF97316),
-          brightness: Brightness.dark,
-          surface: const Color(0xFF080808),
-        ),
-        scaffoldBackgroundColor: const Color(0xFF080808),
-        useMaterial3: true,
-      ),
-      home: _Home(updates: updates, startUrl: startUrl, bootError: bootError),
+      theme: BlazeTheme.data(),
+      home: ready
+          ? UpdateGate(
+              service: updates,
+              child: _Main(updates: updates, startUrl: start),
+            )
+          : const BlazeSplash(),
     );
   }
 }
 
-class _Home extends StatelessWidget {
-  const _Home({
-    required this.updates,
-    required this.startUrl,
-    this.bootError,
-  });
+class _Main extends StatelessWidget {
+  const _Main({required this.updates, required this.startUrl});
 
   final UpdateService updates;
   final String startUrl;
-  final String? bootError;
 
   @override
   Widget build(BuildContext context) {
     final maintenance = updates.snapshot?.maintenance ?? '';
     Widget body = PanelShell(startUrl: startUrl);
     if (maintenance.trim().isNotEmpty) {
-      body = _Maintenance(message: maintenance, child: body);
-    }
-    return UpdateGate(
-      service: updates,
-      child: Stack(
+      body = Column(
         children: [
-          body,
-          if (bootError != null && !updates.firebaseReady)
-            const SizedBox.shrink(),
-        ],
-      ),
-    );
-  }
-}
-
-class _Maintenance extends StatelessWidget {
-  const _Maintenance({required this.message, required this.child});
-
-  final String message;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Material(
-          color: const Color(0xFF7C2D12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Text(message, style: const TextStyle(color: Colors.white)),
+          Material(
+            color: const Color(0xFF7C2D12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Text(maintenance, style: const TextStyle(color: Colors.white)),
+            ),
           ),
-        ),
-        Expanded(child: child),
-      ],
-    );
+          Expanded(child: body),
+        ],
+      );
+    }
+    return body;
   }
 }

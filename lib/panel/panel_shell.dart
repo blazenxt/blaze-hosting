@@ -1,14 +1,13 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../compat/os.dart' if (dart.library.io) '../compat/os_io.dart';
 import '../isolate/allowlist.dart';
+import 'iframe_stub.dart' if (dart.library.html) 'iframe_web.dart';
 
-bool get _embeddedWebView =>
-    !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
+bool get _embeddedWebView => !kIsWeb && (Os.isAndroid || Os.isIOS || Os.isMacOS);
 
 class PanelShell extends StatefulWidget {
   const PanelShell({super.key, required this.startUrl});
@@ -58,6 +57,9 @@ class _PanelShellState extends State<PanelShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return WebPanelFrame(url: widget.startUrl);
+    }
     final controller = _controller;
     if (controller == null) {
       return _DesktopOpen(url: widget.startUrl);
@@ -130,7 +132,11 @@ class _DesktopOpen extends StatelessWidget {
               children: [
                 const Text(
                   'Blaze Hosting',
-                  style: TextStyle(fontSize: 28, color: Color(0xFFF97316), fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: Color(0xFFF97316),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 const Text(

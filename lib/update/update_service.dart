@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../compat/os.dart' if (dart.library.io) '../compat/os_io.dart';
 import 'installer.dart';
 import 'remote_config_source.dart';
 import 'update_models.dart';
@@ -44,22 +43,22 @@ class UpdateService {
   ChannelUpdate? get _channel {
     final s = snapshot;
     if (s == null) return null;
-    if (kIsWeb) return null;
-    if (Platform.isAndroid) return s.android;
-    if (Platform.isWindows) return s.windows;
-    if (Platform.isMacOS) return s.mac;
-    if (Platform.isLinux) return s.linux;
-    if (Platform.isIOS) return s.ios;
+    if (kIsWeb) return s.android;
+    if (Os.isAndroid) return s.android;
+    if (Os.isWindows) return s.windows;
+    if (Os.isMacOS) return s.mac;
+    if (Os.isLinux) return s.linux;
+    if (Os.isIOS) return s.ios;
     return null;
   }
 
   String get platformName {
-    if (kIsWeb) return 'web';
-    if (Platform.isAndroid) return 'Android';
-    if (Platform.isWindows) return 'Windows';
-    if (Platform.isMacOS) return 'macOS';
-    if (Platform.isLinux) return 'Linux';
-    if (Platform.isIOS) return 'iOS';
+    if (kIsWeb) return 'Web';
+    if (Os.isAndroid) return 'Android';
+    if (Os.isWindows) return 'Windows';
+    if (Os.isMacOS) return 'macOS';
+    if (Os.isLinux) return 'Linux';
+    if (Os.isIOS) return 'iOS';
     return 'this device';
   }
 

@@ -399,7 +399,7 @@ class _Pwr extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         foregroundColor: color,
         side: BorderSide(color: color.withOpacity(0.4)),
-        shape: RoundedCornerShape(12),
+        shape: const StadiumBorder(),
       ),
       child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
     );

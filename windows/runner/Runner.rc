@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.blazenxt" "\0"
-            VALUE "FileDescription", "hosting" "\0"
+            VALUE "FileDescription", "Blaze Hosting" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "hosting" "\0"
+            VALUE "InternalName", "BlazeHosting" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.blazenxt. All rights reserved." "\0"
-            VALUE "OriginalFilename", "hosting.exe" "\0"
-            VALUE "ProductName", "hosting" "\0"
+            VALUE "OriginalFilename", "BlazeHosting.exe" "\0"
+            VALUE "ProductName", "Blaze Hosting" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

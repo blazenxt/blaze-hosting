@@ -2,7 +2,7 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Blaze Hosting"
 #define MyAppURL "https://nawazfx.com/"
-#define MyAppExeName "hosting.exe"
+#define MyAppExeName "BlazeHosting.exe"
 
 [Setup]
 AppId={{8F3B0C2A-4E11-4B7A-9C21-BLAZEHOST0001}

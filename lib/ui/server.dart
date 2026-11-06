@@ -21,7 +21,15 @@ class ServerPage extends StatefulWidget {
 
 class _ServerPageState extends State<ServerPage> {
   int tab = 0;
-  static const tabs = ['Console', 'Files', 'Variables', 'Backups', 'Databases', 'Network', 'Settings'];
+  static const tabs = [
+    (Icons.terminal, 'Console'),
+    (Icons.folder_outlined, 'Files'),
+    (Icons.storage_outlined, 'Databases'),
+    (Icons.backup_outlined, 'Backups'),
+    (Icons.lan_outlined, 'Network'),
+    (Icons.tune, 'Startup'),
+    (Icons.settings_outlined, 'Settings'),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -29,33 +37,48 @@ class _ServerPageState extends State<ServerPage> {
     final pages = [
       _Console(server: s, api: widget.api),
       _Files(server: s, api: widget.api),
-      _Vars(server: s, api: widget.api),
-      _Backups(server: s, api: widget.api),
       _Dbs(server: s, api: widget.api),
+      _Backups(server: s, api: widget.api),
       _Net(server: s, api: widget.api),
+      _Vars(server: s, api: widget.api),
       _Settings(server: s, api: widget.api),
     ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
-          child: Row(
+        Container(
+          width: 200,
+          color: const Color(0xFF0C0E12),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(10, 16, 10, 16),
             children: [
-              TextButton(onPressed: widget.onBack, child: const Text('← Servers', style: TextStyle(color: BlazeTheme.accentBright, fontWeight: FontWeight.w700))),
-              const Spacer(),
-              Text(s.id, style: const TextStyle(color: BlazeTheme.muted, fontSize: 12, fontFamily: 'Consolas')),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                child: Text(s.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+              ),
+              for (var i = 0; i < tabs.length; i++)
+                InkWell(
+                  onTap: () => setState(() => tab = i),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: tab == i ? const Color(0xFF282C32) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(tabs[i].$1, size: 16, color: tab == i ? BlazeTheme.text : BlazeTheme.muted),
+                        const SizedBox(width: 10),
+                        Text(tabs[i].$2, style: TextStyle(color: tab == i ? BlazeTheme.text : BlazeTheme.muted, fontWeight: FontWeight.w600, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(28, 4, 28, 8),
-          child: Text(s.name, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.8, color: BlazeTheme.text)),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          child: PillTabs(tabs: tabs, index: tab, onSelect: (i) => setState(() => tab = i)),
-        ),
+        const VerticalDivider(width: 1, color: BlazeTheme.line),
         Expanded(child: pages[tab]),
       ],
     );

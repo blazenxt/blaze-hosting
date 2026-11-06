@@ -22,10 +22,13 @@ class _BlazeNativeAppState extends State<BlazeNativeApp> {
   final api = BlazeApi();
   _Page page = _Page.splash;
   List<BlazeServer> servers = [];
+  final states = <String, String>{};
   BlazeServer? current;
   String query = '';
   String error = '';
   bool busy = false;
+
+  String get username => api.account?.username ?? api.email.split('@').first;
 
   @override
   void initState() {
@@ -47,6 +50,11 @@ class _BlazeNativeAppState extends State<BlazeNativeApp> {
 
   Future<void> _reload() async {
     servers = await api.servers();
+    for (final s in servers) {
+      api.resources(s.id).then((r) {
+        if (mounted) setState(() => states[s.id] = r.state);
+      }).catchError((_) {});
+    }
     if (mounted) setState(() {});
   }
 
@@ -91,16 +99,25 @@ class _BlazeNativeAppState extends State<BlazeNativeApp> {
   Widget _shell(String section, Widget child) {
     return PanelShell(
       email: api.email,
+      username: username,
+      servers: servers,
+      states: states,
+      currentId: current?.id,
       section: section,
-      onServers: () => setState(() {
+      onHome: () => setState(() {
         current = null;
         page = _Page.home;
+      }),
+      onOpen: (s) => setState(() {
+        current = s;
+        page = _Page.server;
       }),
       onAccount: () => setState(() => page = _Page.account),
       onLogout: () async {
         await api.logout();
         setState(() {
           servers = [];
+          current = null;
           page = _Page.login;
         });
       },
@@ -138,6 +155,7 @@ class _BlazeNativeAppState extends State<BlazeNativeApp> {
             'servers',
             HomePage(
               email: api.email,
+              username: username,
               servers: servers.where((s) => query.isEmpty || s.name.toLowerCase().contains(query.toLowerCase())).toList(),
               query: query,
               onQuery: (v) => setState(() => query = v),
@@ -177,21 +195,24 @@ class _Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: EmberBackdrop(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRRect(borderRadius: BorderRadius.circular(24), child: Image.asset('assets/logo.png', width: 96, height: 96)),
-              const SizedBox(height: 16),
-              const Text('Blaze Hosting', style: TextStyle(color: BlazeTheme.text, fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.8)),
-              const SizedBox(height: 6),
-              const Text('Isolated · 1.0.0', style: TextStyle(color: BlazeTheme.muted)),
-              const SizedBox(height: 24),
-              const SizedBox(width: 140, child: LinearProgressIndicator(color: BlazeTheme.accent, backgroundColor: Color(0x22FFFFFF))),
-            ],
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/login-hero.png', fit: BoxFit.cover),
+          const ColoredBox(color: Color(0x99000000)),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/logo.png', width: 72, height: 72),
+                const SizedBox(height: 12),
+                const Text('BlazeNXT', style: TextStyle(color: BlazeTheme.accent, fontWeight: FontWeight.w800, fontSize: 18)),
+                const SizedBox(height: 20),
+                const SizedBox(width: 140, child: LinearProgressIndicator(color: BlazeTheme.accent, backgroundColor: Color(0x33FFFFFF))),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

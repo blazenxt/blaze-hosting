@@ -181,7 +181,7 @@ class BlazeApi {
   }
 
   Future<List<BlazeServer>> servers() async {
-    final data = await _list('/api/client');
+    final data = await _list('/api/client', query: {'include': 'allocations'});
     return data.map((e) => BlazeServer.fromJson((e as Map).cast<String, dynamic>())).toList();
   }
 
@@ -195,6 +195,7 @@ class BlazeApi {
       state: '${a['current_state'] ?? 'offline'}',
       memoryBytes: int.tryParse('${res['memory_bytes'] ?? 0}') ?? 0,
       cpu: double.tryParse('${res['cpu_absolute'] ?? 0}') ?? 0,
+      diskBytes: int.tryParse('${res['disk_bytes'] ?? 0}') ?? 0,
     );
   }
 

@@ -27,6 +27,7 @@ void main() {
     });
     expect(s.id, 'abc12');
     expect(s.memoryMb, 512);
+    expect(s.ip, '');
   });
 
   test('version compare', () {

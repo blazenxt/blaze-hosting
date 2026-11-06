@@ -7,6 +7,8 @@ class BlazeServer {
     required this.memoryMb,
     required this.diskMb,
     required this.description,
+    required this.ip,
+    required this.port,
   });
 
   final String id;
@@ -16,10 +18,25 @@ class BlazeServer {
   final int memoryMb;
   final int diskMb;
   final String description;
+  final String ip;
+  final int port;
+
+  String get address => port == 0 ? ip : '$ip:$port';
 
   factory BlazeServer.fromJson(Map<String, dynamic> json) {
     final a = (json['attributes'] as Map?)?.cast<String, dynamic>() ?? json;
     final limits = (a['limits'] as Map?)?.cast<String, dynamic>() ?? {};
+    Map<String, dynamic>? alloc;
+    final rel = (json['relationships'] as Map?) ?? (a['relationships'] as Map?);
+    final ad = ((rel?['allocations'] as Map?)?['data']);
+    if (ad is List) {
+      for (final e in ad) {
+        final aa = ((e as Map)['attributes'] as Map?)?.cast<String, dynamic>() ?? {};
+        alloc ??= aa;
+        if (aa['is_default'] == true) alloc = aa;
+      }
+    }
+    alloc ??= (a['allocation'] as Map?)?.cast<String, dynamic>();
     return BlazeServer(
       id: '${a['identifier'] ?? ''}',
       uuid: '${a['uuid'] ?? ''}',
@@ -28,16 +45,24 @@ class BlazeServer {
       memoryMb: int.tryParse('${limits['memory'] ?? 0}') ?? 0,
       diskMb: int.tryParse('${limits['disk'] ?? 0}') ?? 0,
       description: '${a['description'] ?? ''}',
+      ip: '${alloc?['ip'] ?? alloc?['ip_alias'] ?? ''}',
+      port: int.tryParse('${alloc?['port'] ?? 0}') ?? 0,
     );
   }
 }
 
 class BlazeResources {
-  const BlazeResources({required this.state, required this.memoryBytes, required this.cpu});
+  const BlazeResources({
+    required this.state,
+    required this.memoryBytes,
+    required this.cpu,
+    required this.diskBytes,
+  });
 
   final String state;
   final int memoryBytes;
   final double cpu;
+  final int diskBytes;
 }
 
 class BlazeFile {

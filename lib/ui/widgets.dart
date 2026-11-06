@@ -1,88 +1,52 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../api/models.dart';
 import '../theme.dart';
+
+const announceText =
+    'New: the corner chat is your isolated agent — create servers and debug crashes on your account only.';
 
 InputDecoration blazeField(String label) => InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(color: BlazeTheme.muted, fontSize: 13),
       filled: true,
-      fillColor: const Color(0xFF0C0C10),
+      fillColor: const Color(0xFF141619),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: BlazeTheme.line),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: BlazeTheme.accent, width: 1.4),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: BlazeTheme.accent),
       ),
     );
 
-class EmberBackdrop extends StatelessWidget {
-  const EmberBackdrop({super.key, required this.child});
-  final Widget child;
+class AnnounceBar extends StatelessWidget {
+  const AnnounceBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const ColoredBox(color: BlazeTheme.bg),
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment(0, -1.05),
-              radius: 1.15,
-              colors: [Color(0x38C94F59), Color(0x00070708)],
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFF0E1014),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      child: Row(
+        children: [
+          Container(width: 3, height: 16, color: BlazeTheme.accent),
+          const SizedBox(width: 10),
+          const Text('New: ', style: TextStyle(color: BlazeTheme.accent, fontWeight: FontWeight.w800)),
+          const Expanded(
+            child: Text(
+              'the corner chat is your isolated agent — create servers and debug crashes on your account only.',
+              style: TextStyle(color: BlazeTheme.text, fontSize: 13),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-        ),
-        CustomPaint(painter: _DotGrid(), size: Size.infinite),
-        child,
-      ],
-    );
-  }
-}
-
-class _DotGrid extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()..color = const Color(0x0AFFFFFF);
-    for (double y = 0; y < size.height; y += 28) {
-      for (double x = 0; x < size.width; x += 28) {
-        canvas.drawCircle(Offset(x, y), 1, p);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class GlassCard extends StatelessWidget {
-  const GlassCard({super.key, required this.child, this.padding = const EdgeInsets.all(18), this.onTap});
-  final Widget child;
-  final EdgeInsets padding;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final box = Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: BlazeTheme.line),
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0x0DFFFFFF), Color(0xEB101014)],
-        ),
+        ],
       ),
-      child: Padding(padding: padding, child: child),
-    );
-    if (onTap == null) return box;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(18), child: box),
     );
   }
 }
@@ -97,27 +61,15 @@ class BlazeBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 48,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF08A90), Color(0xFFC94F59)],
-          ),
-          boxShadow: const [BoxShadow(color: Color(0x47C94F59), blurRadius: 28, offset: Offset(0, 10))],
+      height: 44,
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: BlazeTheme.accent,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            foregroundColor: BlazeTheme.ink,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          onPressed: busy ? null : onTap,
-          child: Text(busy ? 'Working…' : label, style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.2)),
-        ),
+        onPressed: busy ? null : onTap,
+        child: Text(busy ? 'Working…' : label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
       ),
     );
   }
@@ -135,10 +87,8 @@ class Pwr extends StatelessWidget {
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
         foregroundColor: color,
-        backgroundColor: color.withOpacity(0.08),
-        side: BorderSide(color: color.withOpacity(0.35)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        side: BorderSide(color: color.withOpacity(0.4)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
     );
@@ -146,8 +96,9 @@ class Pwr extends StatelessWidget {
 }
 
 class StatusOrb extends StatelessWidget {
-  const StatusOrb(this.state, {super.key});
+  const StatusOrb(this.state, {super.key, this.size = 8});
   final String state;
+  final double size;
 
   Color get color {
     if (state == 'running') return BlazeTheme.ok;
@@ -158,224 +109,255 @@ class StatusOrb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: color.withOpacity(0.7), blurRadius: 10)],
-      ),
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(0.6), blurRadius: 6)]),
     );
   }
 }
 
-class IsolatedChip extends StatelessWidget {
-  const IsolatedChip({super.key});
+class Gauge extends StatelessWidget {
+  const Gauge({super.key, required this.label, required this.value, required this.color, this.caption = ''});
+  final String label;
+  final double value;
+  final Color color;
+  final String caption;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0x1FC94F59),
-        borderRadius: BorderRadius.circular(99),
-        border: Border.all(color: const Color(0x73C94F59)),
-      ),
-      child: const Text(
-        'ISOLATED',
-        style: TextStyle(color: BlazeTheme.accentBright, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.4),
-      ),
-    );
-  }
-}
-
-class PillTabs extends StatelessWidget {
-  const PillTabs({super.key, required this.tabs, required this.index, required this.onSelect});
-  final List<String> tabs;
-  final int index;
-  final ValueChanged<int> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
+    final pct = (value * 100).clamp(0, 999);
+    return SizedBox(
+      width: 72,
+      child: Column(
         children: [
-          for (var i = 0; i < tabs.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: InkWell(
-                onTap: () => onSelect(i),
-                borderRadius: BorderRadius.circular(99),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: i == index ? const Color(0x2EC94F59) : const Color(0x0AFFFFFF),
-                    borderRadius: BorderRadius.circular(99),
-                    border: Border.all(color: i == index ? const Color(0x80C94F59) : BlazeTheme.line),
-                  ),
-                  child: Text(
-                    tabs[i],
-                    style: TextStyle(
-                      color: i == index ? BlazeTheme.accentBright : BlazeTheme.muted,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
+          SizedBox(
+            width: 54,
+            height: 54,
+            child: CustomPaint(
+              painter: _RingPainter(value.clamp(0, 1), color),
+              child: Center(
+                child: Text('${pct.round()}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: BlazeTheme.text)),
               ),
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(color: BlazeTheme.muted, fontSize: 11, fontWeight: FontWeight.w600)),
         ],
       ),
     );
   }
+}
+
+class _RingPainter extends CustomPainter {
+  _RingPainter(this.value, this.color);
+  final double value;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height / 2);
+    final r = size.width / 2 - 4;
+    final bg = Paint()
+      ..color = const Color(0xFF2A2E35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5;
+    final fg = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(c, r, bg);
+    canvas.drawArc(Rect.fromCircle(center: c, radius: r), -math.pi / 2, 2 * math.pi * value, false, fg);
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPainter old) => old.value != value || old.color != color;
 }
 
 class PanelShell extends StatelessWidget {
   const PanelShell({
     super.key,
     required this.email,
+    required this.username,
+    required this.servers,
+    required this.states,
+    required this.currentId,
     required this.section,
-    required this.onServers,
+    required this.onHome,
+    required this.onOpen,
     required this.onAccount,
     required this.onLogout,
     required this.child,
   });
 
   final String email;
+  final String username;
+  final List<BlazeServer> servers;
+  final Map<String, String> states;
+  final String? currentId;
   final String section;
-  final VoidCallback onServers;
+  final VoidCallback onHome;
+  final ValueChanged<BlazeServer> onOpen;
   final VoidCallback onAccount;
   final VoidCallback onLogout;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final wide = MediaQuery.sizeOf(context).width >= 880;
-    final rail = _Rail(email: email, section: section, onServers: onServers, onAccount: onAccount, onLogout: onLogout, compact: !wide);
     return Scaffold(
       backgroundColor: BlazeTheme.bg,
-      body: EmberBackdrop(
-        child: wide
-            ? Row(
-                children: [
-                  SizedBox(width: 232, child: rail),
-                  const VerticalDivider(width: 1, color: BlazeTheme.line),
-                  Expanded(child: child),
-                ],
-              )
-            : Column(
-                children: [
-                  rail,
-                  const Divider(height: 1, color: BlazeTheme.line),
-                  Expanded(child: child),
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-class _Rail extends StatelessWidget {
-  const _Rail({
-    required this.email,
-    required this.section,
-    required this.onServers,
-    required this.onAccount,
-    required this.onLogout,
-    required this.compact,
-  });
-  final String email;
-  final String section;
-  final VoidCallback onServers;
-  final VoidCallback onAccount;
-  final VoidCallback onLogout;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final nav = [
-      _Nav(Icons.dns_outlined, 'Servers', section == 'servers', onServers),
-      _Nav(Icons.person_outline, 'Account', section == 'account', onAccount),
-    ];
-    if (compact) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-        child: Row(
-          children: [
-            Image.asset('assets/logo.png', width: 28, height: 28),
-            const SizedBox(width: 8),
-            const Text('Blaze Hosting', style: TextStyle(fontWeight: FontWeight.w700)),
-            const Spacer(),
-            ...nav,
-            IconButton(onPressed: onLogout, icon: const Icon(Icons.logout, size: 18, color: BlazeTheme.muted)),
-          ],
-        ),
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
         children: [
-          Row(
-            children: [
-              ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.asset('assets/logo.png', width: 40, height: 40)),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Blaze Hosting', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.4)),
-                    Text('panel.nawazfx.com', style: TextStyle(color: BlazeTheme.muted, fontSize: 11)),
-                  ],
+          const AnnounceBar(),
+          Expanded(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 248,
+                  child: _Side(
+                    email: email,
+                    username: username,
+                    servers: servers,
+                    states: states,
+                    currentId: currentId,
+                    onHome: onHome,
+                    onOpen: onOpen,
+                    onAccount: onAccount,
+                    onLogout: onLogout,
+                  ),
                 ),
-              ),
-            ],
+                const VerticalDivider(width: 1, color: BlazeTheme.line),
+                Expanded(child: ColoredBox(color: BlazeTheme.bg, child: child)),
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          const IsolatedChip(),
-          const SizedBox(height: 22),
-          ...nav.map((n) => Padding(padding: const EdgeInsets.only(bottom: 6), child: n)),
-          const Spacer(),
-          Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: BlazeTheme.muted, fontSize: 12)),
-          const SizedBox(height: 8),
-          TextButton(onPressed: onLogout, child: const Text('Log out', style: TextStyle(color: BlazeTheme.muted))),
         ],
       ),
     );
   }
 }
 
-class _Nav extends StatelessWidget {
-  const _Nav(this.icon, this.label, this.active, this.onTap);
-  final IconData icon;
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
+class _Side extends StatefulWidget {
+  const _Side({
+    required this.email,
+    required this.username,
+    required this.servers,
+    required this.states,
+    required this.currentId,
+    required this.onHome,
+    required this.onOpen,
+    required this.onAccount,
+    required this.onLogout,
+  });
+  final String email;
+  final String username;
+  final List<BlazeServer> servers;
+  final Map<String, String> states;
+  final String? currentId;
+  final VoidCallback onHome;
+  final ValueChanged<BlazeServer> onOpen;
+  final VoidCallback onAccount;
+  final VoidCallback onLogout;
+
+  @override
+  State<_Side> createState() => _SideState();
+}
+
+class _SideState extends State<_Side> {
+  String q = '';
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? const Color(0x24C94F59) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: active ? const Color(0x55C94F59) : Colors.transparent),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: active ? BlazeTheme.accentBright : BlazeTheme.muted),
-            const SizedBox(width: 10),
-            Text(label, style: TextStyle(color: active ? BlazeTheme.text : BlazeTheme.muted, fontWeight: FontWeight.w700, fontSize: 13)),
-          ],
-        ),
+    final list = widget.servers.where((s) => q.isEmpty || s.name.toLowerCase().contains(q.toLowerCase())).toList();
+    return ColoredBox(
+      color: const Color(0xFF0E1013),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: widget.onHome,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              child: Row(
+                children: [
+                  Image.asset('assets/logo.png', width: 28, height: 28),
+                  const SizedBox(width: 8),
+                  const Text('BlazeNXT', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: BlazeTheme.text)),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: const Color(0x22C94F59), borderRadius: BorderRadius.circular(4)),
+                    child: const Text('PANEL', style: TextStyle(color: BlazeTheme.accentBright, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: TextField(
+              onChanged: (v) => setState(() => q = v),
+              style: const TextStyle(color: BlazeTheme.text, fontSize: 13),
+              decoration: blazeField('Search...').copyWith(labelText: null, hintText: 'Search...', hintStyle: const TextStyle(color: BlazeTheme.muted)),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 6),
+            child: Text('SERVERS', style: TextStyle(color: BlazeTheme.muted, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              children: list
+                  .map(
+                    (s) => InkWell(
+                      onTap: () => widget.onOpen(s),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: widget.currentId == s.id ? const Color(0xFF282C32) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            StatusOrb(widget.states[s.id] ?? 'offline'),
+                            const SizedBox(width: 10),
+                            Expanded(child: Text(s.name, overflow: TextOverflow.ellipsis, style: const TextStyle(color: BlazeTheme.text, fontSize: 13, fontWeight: FontWeight.w600))),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+          const Divider(height: 1, color: BlazeTheme.line),
+          InkWell(
+            onTap: widget.onAccount,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: BlazeTheme.accent,
+                    child: Text(
+                      (widget.username.isNotEmpty ? widget.username[0] : 'U').toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(widget.username.isNotEmpty ? widget.username : widget.email, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                  IconButton(onPressed: widget.onLogout, icon: const Icon(Icons.logout, size: 16, color: BlazeTheme.muted), visualDensity: VisualDensity.compact),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -385,7 +367,7 @@ Future<void> blazeAlert(BuildContext context, String msg) {
   return showDialog<void>(
     context: context,
     builder: (c) => AlertDialog(
-      backgroundColor: BlazeTheme.panel,
+      backgroundColor: BlazeTheme.card,
       title: const Text('Blaze Hosting', style: TextStyle(color: BlazeTheme.text)),
       content: Text(msg, style: const TextStyle(color: BlazeTheme.muted)),
       actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text('OK'))],
